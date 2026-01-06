@@ -1,0 +1,16 @@
+pandas
+numpy
+scikit-learn
+kmodes==0.12.2
+sentence-transformers
+Sastrawi
+langdetect
+nltk
+joblib
+tqdm
+matplotlib
+seaborn
+streamlit
+torch
+scipy
+
