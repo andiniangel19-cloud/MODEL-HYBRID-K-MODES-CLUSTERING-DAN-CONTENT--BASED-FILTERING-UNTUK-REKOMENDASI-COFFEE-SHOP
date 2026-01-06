@@ -1,22 +1,16 @@
 # =========================================================
-# STREAMLIT APP — FINAL DEPLOY-SAFE VERSION
+# STREAMLIT APP — FINAL FIXED VERSION
 # =========================================================
 
 import sys
 import os
 import urllib.parse
-
 import streamlit as st
 import joblib
 
-# ===== FIX PATH AGAR src TERDETECT SAAT DEPLOY =====
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
-
 from src.recommender import build_recommender, recommend
 
-# =========================================================
-# PAGE CONFIG
-# =========================================================
 st.set_page_config(
     page_title="COFFE SHOP FINDER JOGJA",
     page_icon="☕",
@@ -24,11 +18,10 @@ st.set_page_config(
 )
 
 # =========================================================
-# CUSTOM CSS
+# CUSTOM CSS (FINAL)
 # =========================================================
 st.markdown("""
 <style>
-/* HALAMAN */
 .stApp { background: #FFF5E6; }
 
 /* HERO */
@@ -42,97 +35,117 @@ st.markdown("""
 .hero h1 { font-size: 48px; color: #3B270C; font-weight: 900; }
 .hero p { font-size: 20px; color: #4B3A26; }
 
-/* FORM CARD */
+/* FORM */
 .form-card {
     background-color: #3B270C;
     padding: 40px;
     border-radius: 20px;
     margin-bottom: 50px;
 }
-
-/* Judul form manual (Preferensi Anda) */
 .form-title {
     color: #3B270C;
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 25px;
 }
 
-/* SEGMENT CARD */
+/* FORM LABEL & INPUT */
+label, .stTextInput label, .stSelectbox label {
+    color: #3B270C !important;
+    font-weight: 700;
+}
+input, textarea {
+    color: #3B270C !important;
+}
+
+/* SEGMENT */
 .segment-card {
     background-color: #F5E8D0;
     padding: 28px;
     border-radius: 20px;
     border-left: 8px solid #4B3A26;
     margin-bottom: 35px;
-    color: #3B270C;
 }
 .segment-card h2, .segment-card p {
     color: #3B270C !important;
 }
 
-/* TOP 1 CARD */
+/* RECOMMENDATION TITLE */
+.rec-title {
+    color: #3B270C;
+    font-size: 26px;
+    font-weight: 800;
+    margin: 30px 0 25px 0;
+}
+
+/* TOP 1 */
 .top1-card {
     background: linear-gradient(135deg, #795C32, #A67C52);
     padding: 32px;
     border-radius: 22px;
     margin-bottom: 30px;
     color: white;
+    position: relative;
 }
-.top1-card h2, 
-.top1-card p {
-    color: white !important;
+.top1-card * { color: white !important; }
+
+.top-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: #4B3A26;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-weight: 900;
 }
 
-/* TOP 2-5 CARD */
+/* TOP 2–5 */
 .recom-card {
-    background-color: #FFF5E6;
-    padding: 20px;
-    border-radius: 16px;
-    border-left: 6px solid #4B3A26;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
+    background-color: #F3E1C6;
+    padding: 22px;
+    border-radius: 18px;
+    margin-bottom: 22px;
+    position: relative;
 }
-.recom-card h4 { color: #3B270C; margin-bottom:6px; }
-.recom-card p { color: #3B270C; margin-bottom:6px; }
-.recom-card a.maps-link { margin-top:4px; display:inline-block; }
+.recom-card h4, .recom-card p {
+    color: #3B270C;
+}
 
-/* MAPS LINK */
+.recom-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #A67C52;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-weight: 800;
+}
+
+/* MAPS */
 .maps-link {
     background-color: #4B3A26;
     color: white !important;
     padding: 8px 16px;
-    text-decoration: none;
     border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
 }
 
-/* REKOMENDASI COFFEE SHOP JUDUL */
-.recommendation-title {
-    color: #3B270C;
-    font-weight: 700;
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-/* WATERMARK & FOOTER */
-.watermark {
+/* FOOTER */
+.watermark, .footer-text {
     text-align: center;
     color: #3B270C;
     font-size: 14px;
-    margin-top: 50px;
-    opacity: 0.8;
-}
-.footer-text {
-    text-align:center; 
-    color:#3B270C; 
-    font-size:14px; 
-    margin-top:5px;
+    margin-top: 40px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# LOAD MODELS & RECOMMENDER (CACHE)
+# LOAD MODEL
 # =========================================================
 @st.cache_resource
 def load_resources():
@@ -145,17 +158,13 @@ def load_resources():
 kmodes, category_mappings, df, tfidf, tfidf_matrix, sbert, embeddings = load_resources()
 
 # =========================================================
-# SEGMENT INFO
+# SEGMENT INFO (ASLI PUNYAMU)
 # =========================================================
 segment_info = {
-    0: {"name": "Instagrammable & Aesthetic",
-        "desc": "Kamu menyukai coffee shop dengan desain visual yang estetik , sangat cocok untuk berfoto."},
-    1: {"name": "Casual Coffee Drinker (Lokal)",
-        "desc": "Kamu menikmati suasana santai dengan pilihan kopi yang ramah di lidah dan nyaman untuk ngobrol."},
-    2: {"name": "Premium Coffee Enthusiast",
-        "desc": "Kamu mengutamakan kualitas biji kopi, teknik seduh manual,  dan pengalaman rasa yang serius."},
-    3: {"name": "Productive Work / Study",
-        "desc": "Kamu membutuhkan ruang yang tenang, kursi yang nyaman, dan suasana yang mendukung fokus bekerja."}
+    0: {"name": "Instagrammable & Aesthetic", "desc": "Kamu menyukai coffee shop dengan desain visual yang unik dan estetik, sangat cocok untuk berfoto."},
+    1: {"name": "Casual Coffee Drinker (Lokal)", "desc": "Kamu menikmati suasana santai dengan pilihan kopi yang ramah di lidah dan nyaman untuk ngobrol."},
+    2: {"name": "Premium Coffee Enthusiast", "desc": "Kamu mengutamakan kualitas biji kopi, teknik seduh manual, dan pengalaman rasa yang serius."},
+    3: {"name": "Productive Work / Study", "desc": "Kamu membutuhkan ruang yang tenang, kursi yang nyaman, dan suasana yang mendukung fokus bekerjar."}
 }
 
 # =========================================================
@@ -163,13 +172,13 @@ segment_info = {
 # =========================================================
 st.markdown("""
 <div class="hero">
-    <h1>☕ COFFE SHOP FINDER JOGJA</h1>
-    <p>Sistem rekomendasi coffee shop berbasis segmentasi pelanggan dan analisis ulasan.</p>
+<h1>☕ COFFE SHOP FINDER JOGJA</h1>
+<p>Temukan coffee shop terbaik di Yogyakarta dengan rekomendasi berbasis preferensi dan karakter unik Anda.</p>
 </div>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# FORM INPUT
+# FORM
 # =========================================================
 st.markdown('<div class="form-card">', unsafe_allow_html=True)
 st.markdown('<div class="form-title">Preferensi Anda</div>', unsafe_allow_html=True)
@@ -178,24 +187,12 @@ with st.form("user_form"):
     col1, col2 = st.columns(2)
 
     with col1:
-        tujuan = st.selectbox(
-            "Tujuan Kunjungan",
-            list(category_mappings["Tujuan utama Anda ke coffee shop?"].values())
-        )
-        faktor = st.selectbox(
-            "Faktor Penentu",
-            list(category_mappings["Faktor utama yang paling memengaruhi Anda dalam memilih coffee shop"].values())
-        )
+        tujuan = st.selectbox("Tujuan Kunjungan", list(category_mappings["Tujuan utama Anda ke coffee shop?"].values()))
+        faktor = st.selectbox("Faktor Penentu", list(category_mappings["Faktor utama yang paling memengaruhi Anda dalam memilih coffee shop"].values()))
 
     with col2:
-        minuman = st.selectbox(
-            "Minuman Favorit",
-            list(category_mappings["Jenis minuman yang paling sering Anda pesan di coffee shop"].values())
-        )
-        duduk = st.selectbox(
-            "Tempat Duduk Favorit",
-            list(category_mappings["Jenis tempat duduk favorit Anda"].values())
-        )
+        minuman = st.selectbox("Minuman Favorit", list(category_mappings["Jenis minuman yang paling sering Anda pesan di coffee shop"].values()))
+        duduk = st.selectbox("Tempat Duduk Favorit", list(category_mappings["Jenis tempat duduk favorit Anda"].values()))
 
     kebutuhan = st.text_input("Kebutuhan khusus", placeholder="wifi kencang, banyak colokan")
     area = st.text_input("Area (opsional)", placeholder="Gejayan, Jakal, UGM")
@@ -205,74 +202,57 @@ with st.form("user_form"):
 st.markdown('</div>', unsafe_allow_html=True)
 
 # =========================================================
-# PROCESS & OUTPUT
+# OUTPUT
 # =========================================================
 if submitted:
-    # Encode user input
-    user_input = {
+    encoded = []
+    for col, val in {
         "Tujuan utama Anda ke coffee shop?": tujuan,
         "Faktor utama yang paling memengaruhi Anda dalam memilih coffee shop": faktor,
         "Jenis minuman yang paling sering Anda pesan di coffee shop": minuman,
         "Jenis tempat duduk favorit Anda": duduk
-    }
-
-    encoded = []
-    for col, val in user_input.items():
+    }.items():
         rev = {v: k for k, v in category_mappings[col].items()}
         encoded.append(rev[val])
 
-    cluster_id = kmodes.predict([encoded])[0]
-    segment = segment_info[cluster_id]
+    cluster = kmodes.predict([encoded])[0]
+    seg = segment_info[cluster]
 
     st.markdown(f"""
     <div class="segment-card">
-        <h2>{segment['name']}</h2>
-        <p>{segment['desc']}</p>
+        <h2>{seg['name']}</h2>
+        <p>{seg['desc']}</p>
     </div>
     """, unsafe_allow_html=True)
 
-    # Cari rekomendasi
-    with st.spinner("☕ Mencari coffee shop terbaik..."):
-        results = recommend(
-            df, tfidf, tfidf_matrix, sbert, embeddings,
-            user_text=kebutuhan,
-            segment=segment["name"],
-            lokasi=area if area else None,
-            top_k=5
-        )
+    results = recommend(df, tfidf, tfidf_matrix, sbert, embeddings, kebutuhan, seg["name"], area, 5)
 
-    st.markdown('<div class="recommendation-title">☕ Rekomendasi Coffee Shop</div>', unsafe_allow_html=True)
+    st.markdown('<div class="rec-title"> ☕ Rekomendasi Coffee Shop</div>', unsafe_allow_html=True)
 
-    if results.empty:
-        st.warning("Tidak ditemukan coffee shop yang sesuai.")
-    else:
-        for i, (_, row) in enumerate(results.iterrows(), start=1):
-            query = urllib.parse.quote(f"{row['name']} {row['area']} Yogyakarta")
-            maps_url = f"https://www.google.com/maps/search/?api=1&query={query}"
+    for i, (_, row) in enumerate(results.iterrows(), 1):
+        query = urllib.parse.quote(f"{row['name']} {row['area']} Yogyakarta")
+        maps = f"https://www.google.com/maps/search/?api=1&query={query}"
 
-            if i == 1:
-                # Top 1 tetap coklat tua background + teks putih
-                st.markdown(f"""
-                <div class="top1-card">
-                    <h2>{row['name']} 🏆</h2>
-                    <p>⭐ {row['rating']:.2f} | 📍 {row['area']}</p>
-                    <p>{row['address']}</p>
-                    <a href="{maps_url}" target="_blank" class="maps-link">📍 Petunjuk Lokasi</a>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                # Top 2-5, warna teks coklat gelap, background kotak
-                st.markdown(f"""
-                <div class="recom-card">
-                    <h4>#{i} {row['name']}</h4>
-                    <p>⭐ {row['rating']:.2f} | 📍 {row['area']}</p>
-                    <p>{row['address']}</p>
-                    <a href="{maps_url}" target="_blank" class="maps-link">📍 Petunjuk Lokasi</a>
-                </div>
-                """, unsafe_allow_html=True)
+        if i == 1:
+            st.markdown(f"""
+            <div class="top1-card">
+                <div class="top-badge">🏆 TOP 1</div>
+                <h2>{row['name']}</h2>
+                <p>⭐ {row['rating']:.2f} | 📍 {row['area']}</p>
+                <p>{row['address']}</p>
+                <a href="{maps}" target="_blank" class="maps-link">📍 Petunjuk Lokasi</a>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="recom-card">
+                <div class="recom-badge">TOP {i}</div>
+                <h4>{row['name']}</h4>
+                <p>⭐ {row['rating']:.2f} | 📍 {row['area']}</p>
+                <p>{row['address']}</p>
+                <a href="{maps}" target="_blank" class="maps-link">📍 Petunjuk Lokasi</a>
+            </div>
+            """, unsafe_allow_html=True)
 
-# =========================================================
-# FOOTER
-# =========================================================
 st.markdown('<div class="watermark">By Angel & Thania</div>', unsafe_allow_html=True)
 st.markdown('<div class="footer-text">Model menggunakan K-Modes Clustering, TF-IDF, Sentence-BERT, dan keyword-based segmentation.</div>', unsafe_allow_html=True)
